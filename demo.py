@@ -35,8 +35,9 @@ def main(yolo):
     tracker = Tracker(metric)
 
     writeVideo_flag = True 
-    
-    video_capture = cv2.VideoCapture(0)
+
+    videp_path = "C:/Users/Admin/Desktop/yoon/testvideo/test/MVI_40714.mp4"
+    video_capture = cv2.VideoCapture(videp_path)
 
     if writeVideo_flag:
     # Define the codec and create VideoWriter object
