@@ -36,7 +36,7 @@ def main(yolo):
 
     writeVideo_flag = True 
 
-    videp_path = "C:/Users/Admin/Desktop/yoon/testvideo/test/MVI_40714.mp4"
+    videp_path = "C:/Users/Admin/Desktop/yoon/testvideo/test/MVI_40701.mp4"
     video_capture = cv2.VideoCapture(videp_path)
 
     if writeVideo_flag:
@@ -44,8 +44,9 @@ def main(yolo):
         w = int(video_capture.get(3))
         h = int(video_capture.get(4))
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter('output.avi', fourcc, 15, (w, h))
-        list_file = open('detection.txt', 'w')
+        out = cv2.VideoWriter('3_save_info.avi', fourcc, 15, (w, h))
+        list_file = open('3_detection.txt', 'w')
+        track_list = open('3_tracking.txt', 'w') # 프레임에서 track 정보 저장
         frame_index = -1 
         
     fps = 0.0
@@ -78,13 +79,17 @@ def main(yolo):
             if not track.is_confirmed() or track.time_since_update > 1:
                 continue 
             bbox = track.to_tlbr()
-            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,255,255), 2)
-            cv2.putText(frame, str(track.track_id),(int(bbox[0]), int(bbox[1])),0, 5e-3 * 200, (0,255,0),2)
+            cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,255), 2)
+            cv2.putText(frame, str(track.track_id),(int(bbox[0]), int(bbox[1])-5),0, 5e-3 * 120, (0,255,0), 2) #200
+            cent_x = int((bbox[0] + bbox[2]) / 2)
+            cent_y = int((bbox[1] + bbox[3]) / 2)
+            track_list.write(str(track.track_id) + ' ' + str(cent_x) + ' ' + str(cent_y) + ' ')
 
         for det in detections:
             bbox = det.to_tlbr()
             cv2.rectangle(frame,(int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),(255,0,0), 2)
-            
+
+        track_list.write('\n')
         cv2.imshow('', frame)
         
         if writeVideo_flag:
@@ -96,7 +101,7 @@ def main(yolo):
                 for i in range(0,len(boxs)):
                     list_file.write(str(boxs[i][0]) + ' '+str(boxs[i][1]) + ' '+str(boxs[i][2]) + ' '+str(boxs[i][3]) + ' ')
             list_file.write('\n')
-            
+
         fps  = ( fps + (1./(time.time()-t1)) ) / 2
         print("fps= %f"%(fps))
         
